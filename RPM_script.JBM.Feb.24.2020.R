@@ -1,0 +1,56 @@
+baserpm<-BASE_DE_DATOS_RL
+str(baserpm)
+baserpm$GRADOi<-factor(baserpm$GRADOi,labels = c("Con nivel superior","Sin nivel superior"), levels = c(2,1))
+baserpm$RL_PROCEDENCIA<-factor(baserpm$RL_PROCEDENCIA,labels = c("Urbano","Rural"),levels = c(2,1))
+baserpm$ANEMIA<-factor(baserpm$ANEMIA,labels = c("No","Si"),levels = c(2,1))
+baserpm$CPN<-factor(baserpm$CPN,labels = c("≥6 controles","<6 controles","Ninguno"),levels = c(3,2,1))
+baserpm$CORIOAMNIONITIS<-factor(baserpm$CORIOAMNIONITIS,labels = c("No","Si"),levels = c(2,1))
+baserpm$PARTOPREMATURO<-factor(baserpm$PARTOPREMATURO,labels = c("No","Si"),levels = c(2,1))
+baserpm$RPMpt<-factor(baserpm$RPMpt,labels = c("No","Si"),levels = c(2,1))
+str(baserpm)
+View(baserpm)
+
+# Análisis bivariado
+library(tableone)
+attach(baserpm)
+tabla1_rpm=CreateTableOne(data=baserpm, 
+                          strata = "RPMpt")
+
+tabla2_rpm=print(tabla1_rpm,showAllLevels=T);tabla2_rpm
+write.csv(tabla2_rpm,file = "Tabla1_rpm.csv")
+
+library(survey)
+library(stats)
+modelo1_rpm=glm(baserpm$RPMpt~
+              baserpm$GRADOi+ 
+              baserpm$RL_PROCEDENCIA+
+              baserpm$ANEMIA+
+              baserpm$CPN+
+              baserpm$CORIOAMNIONITIS+
+              baserpm$PARTOPREMATURO,
+            data=baserpm,
+            family = binomial(link = "logit"))
+
+library(sjPlot)
+tab_model(modelo1_rpm,show.p=T)
+
+modelo2_rpm=glm(baserpm$RPMpt~
+                  baserpm$ANEMIA+
+                  baserpm$CORIOAMNIONITIS+
+                  baserpm$PARTOPREMATURO,
+                data=baserpm,
+                family = binomial(link = "logit"))
+
+library(sjPlot)
+tab_model(modelo2_rpm,show.p=T)
+
+
+modelo3_rpm=glm(baserpm$RPMpt~
+                  baserpm$GRADOi+ 
+                  baserpm$RL_PROCEDENCIA+
+                  baserpm$CPN,
+                data=baserpm,
+                family = binomial(link = "logit"))
+
+library(sjPlot)
+tab_model(modelo3_rpm,show.p=T)
